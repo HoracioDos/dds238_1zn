@@ -1,0 +1,16 @@
+[Unit]
+Description=Send MQTT Payload from DDS238-1ZN to ZABBIX
+After=network.target mosquitto.service
+
+[Service]
+PIDFile=/run/%I.pid
+WorkingDirectory=/usr/share/dds238_1zn
+
+ExecStart=/usr/share/dds238_1zn/dds238_1zn.py
+KillSignal=SIGINT
+ExecReload=/bin/kill -HUP $MAINPID
+ExecStop=/bin/kill -INT $MAINPID
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
