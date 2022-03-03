@@ -8,6 +8,10 @@ import os
 from subprocess import Popen, PIPE, STDOUT
 
 device = "piapc"
+mqtt_server = "192.168.1.34"
+mqtt_usr = "zabbix"
+mqtt_pwd = "zabbix"
+mqtt_client = "py-zabbix_1"
 config_file="/etc/zabbix/zabbix_agent2.conf"
 
 
@@ -54,13 +58,12 @@ def on_log(mqttc, obj, level, string):
 if __name__ == "__main__":
 
    MQTT_TOPIC = [("/dds238_1zn/out/#",0),("/dds238_1zn/status/#",0)]
-   mqttc = mqtt.Client("py-zabbix_1")
-   mqttc.username_pw_set("zabbix", "zabbix")
+   mqttc = mqtt.Client(mqtt_client)
+   mqttc.username_pw_set(mqtt_usr, mqtt_pwd)
    mqttc.on_message = on_message
    # Uncomment to enable debug messages
    # mqttc.on_log = on_log
-   mqttc.connect("192.168.1.34", 1883, 60)
+   mqttc.connect(mqtt_server, 1883, 60)
    mqttc.subscribe(MQTT_TOPIC)
 
    mqttc.loop_forever()
-

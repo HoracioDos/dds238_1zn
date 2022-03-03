@@ -21,16 +21,17 @@ String response;
 
 // Telnet Settings
 const char* host_name = "dds238_1zn";
-const char* host_password = "WattMeter"; 
+const char* host_pwd = "WattMeter"; 
 int const   host_port = 23; 
 
 // Wifi Client Settings 
-const char* ssid = "Bezito_2.4G";
-const char* password = "lysoform";
+const char* ssid = "my_ssid";
+const char* ssid_pwd = "my_ssid_pwd";
 const char* mqtt_server = "192.168.1.34";
 const char* mqtt_user = "zabbix";
 const char* mqtt_pwd = "zabbix";
 const char* willTopic = "/dds238_1zn/status";
+const char* Topic = "/dds238_1zn/out";
 
 // MQTT Settings
 bool willRetain = true;
@@ -61,7 +62,7 @@ void setup_wifi() {
   // Wifi Client Connection
   delay(10);
   // Serial.print("Connecting to " + String(ssid));
-  WiFi.begin(ssid, password);
+  WiFi.begin(ssid, ssid_pwd);
 
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -169,8 +170,8 @@ void publish_HoldingRegisters() {
     char buffer[200];    
     size_t n = serializeJson(doc, buffer);
     // Serial.println("JSON Payload=" + String(buffer) + " Status=" + String(online));
-    client.publish("/dds238_1zn/out", buffer, n);
-    client.publish("/dds238_1zn/status", online, willRetain);
+    client.publish(Topic, buffer, n);
+    client.publish(willTopic, online, willRetain);
     TelnetStream.print(String(buffer) + "\n");
   } 
 }
