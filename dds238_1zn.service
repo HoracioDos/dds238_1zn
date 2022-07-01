@@ -6,7 +6,7 @@ After=network.target mosquitto.service
 PIDFile=/run/%I.pid
 WorkingDirectory=/usr/local/bin
 
-ExecStart=/usr/local/bin/dds238_1zn.py
+ExecStart=/usr/local/bin/dds238_1zn_mqtt.py
 KillSignal=SIGINT
 ExecReload=/bin/kill -HUP $MAINPID
 ExecStop=/bin/kill -INT $MAINPID
