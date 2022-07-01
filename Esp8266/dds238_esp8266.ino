@@ -21,32 +21,27 @@ String response;
 
 // Telnet Settings
 const char* host_name = "dds238_1zn";
-const char* host_pwd = "WattMeter"; 
+const char* host_password = "Telnet Password"; 
 int const   host_port = 23; 
 
 // Wifi Client Settings 
-const char* ssid = "my_ssid";
-const char* ssid_pwd = "my_ssid_pwd";
-const char* mqtt_server = "192.168.1.34";
-const char* mqtt_user = "zabbix";
-const char* mqtt_pwd = "zabbix";
+const char* ssid = "WIFI SSID";
+const char* password = "WIFI Pwd";
+const char* mqtt_server = "Mqtt Ip Address";
+const char* mqtt_user = "Mqtt User";
+const char* mqtt_pwd = "Mqtt Pwd";
 const char* willTopic = "/dds238_1zn/status";
-const char* Topic = "/dds238_1zn/out";
 
 // MQTT Settings
 bool willRetain = true;
 const char* willMessage = "";
 bool const cleanSession = true;
-const char* online = "1";
-const char* offline = "0";
 int const willQoS = 0;
 const char* clientId = "DDS238-1ZN";
+
 WiFiClient espClient;
 PubSubClient client(espClient);
-unsigned long lastMsg = 0;
-#define MSG_BUFFER_SIZE  (50)
-char msg[MSG_BUFFER_SIZE];
-int value = 0;
+
 
 void setup_telnet() {
   TelnetStream.begin();
@@ -61,18 +56,11 @@ void setup_wifi() {
 
   // Wifi Client Connection
   delay(10);
-  // Serial.print("Connecting to " + String(ssid));
-  WiFi.begin(ssid, ssid_pwd);
+  WiFi.begin(ssid, password);
 
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
-    // Serial.println("please wait for connection...");
   }
-
-  // Serial.print("Client WiFi connected to :");
-  // Serial.println(ssid);
-  // Serial.print("IP address: ");
-  // Serial.println(WiFi.localIP());
 }
 
 void setup_mDNS() {
@@ -83,7 +71,7 @@ void setup_mDNS() {
   }
    
   MDNS.addService("telnet", "tcp", host_port);
-    //Serial.print("mDNS started: " + String(host_name) + ":" + String(host_port));
+    // Serial.print("mDNS started: " + String(host_name) + ":" + String(host_port));
 }  
 
 
@@ -105,20 +93,12 @@ void reconnect() {
   while (!client.connected()) {
     // Serial.print("Attempting MQTT connection to: ");
     // Serial.println(mqtt_server);
-    willMessage = offline;
     // Attempt to connect
-    if (client.connect(clientId, mqtt_user, mqtt_pwd, willTopic, willQoS, willRetain, willMessage, cleanSession)) {
-
-      // Serial.print(clientId);
-      // Serial.println(" connected to MQTT Server");
-      // Serial.println("");
-      client.subscribe("/dds238_1zn/in");
+    willMessage = "";
+    if (client.connect(clientId, mqtt_user, mqtt_pwd, willTopic, willQoS, willRetain, willMessage, cleanSession)) {          
+        client.subscribe("dds238_1zn/in");
     } else {
-      // Serial.print("failed, rc=");
-      // Serial.print(client.state());
-      // Serial.println(" try again in 5 seconds");
-      // Wait 5 seconds before retrying
-      delay(5000);
+        delay(5000);
     }
   }
 }
@@ -144,40 +124,39 @@ void publish_HoldingRegisters() {
       dds238_1zn.task();
     }
   }
-  if (response == "0") {
+  if (response == "0") { 
 
-    DynamicJsonDocument doc(200);
-    
+    DynamicJsonDocument json_data(200);
+    char data_buffer[200];
+       
     // Current Total Energy = Cur Tot Energy Low + Cur Tot Energy High 
-    doc["cte"] = float(registers[0] + registers[1] / 100.00);
+    json_data["cte"] = float(registers[0] + registers[1] / 100.00);
     // Current Export Energy = Cur Exp Energy Low + Cur Exp Energy High
-    doc["cee"] = float(registers[8] + registers[9] / 100.00);
+    json_data["cee"] = float(registers[8] + registers[9] / 100.00);
     // Current Import Energy = Cur Imp Energy Low + Cur Imp Energy High
-    doc["cie"] = float(registers[10] + registers[11] / 100.00);
+    json_data["cie"] = float(registers[10] + registers[11] / 100.00);
     // Voltage
-    doc["v"] = float(registers[12] /10.00);
+    json_data["v"] = float(registers[12] /10.00);
     // Current
-    doc["c"] = float(registers[13] /10.00);
+    json_data["c"] = float(registers[13] /10.00);
     // Active Power
-    doc["ap"] = registers[14];
+    json_data["ap"] = registers[14];
     // reactive Power
-    doc["rp"] = registers[15];
+    json_data["rp"] = registers[15];
     // Power Factor
-    doc["pf"] = float(registers[16] /1000.000);
+    json_data["pf"] = float(registers[16] /1000.000);
     // Frequency
-    doc["f"] = float(registers[17] /100.00);
+    json_data["f"] = float(registers[17] /100.00);
 
-    char buffer[200];    
-    size_t n = serializeJson(doc, buffer);
-    // Serial.println("JSON Payload=" + String(buffer) + " Status=" + String(online));
-    client.publish(Topic, buffer, n);
-    client.publish(willTopic, online, willRetain);
-    TelnetStream.print(String(buffer) + "\n");
+    size_t data_size= serializeJson(json_data, data_buffer);
+    client.publish("dds238_1zn/out", data_buffer, data_size);
+    TelnetStream.print(String(data_buffer) + "\n");
+
   } 
 }
 
 void setup() {
-  
+
   Serial.begin(9600);
   dds238_1zn.begin(&Serial, D0);
   dds238_1zn.master();
@@ -185,9 +164,11 @@ void setup() {
   setup_wifi();
   setup_mDNS();
   setup_telnet();
+  
   client.setServer(mqtt_server, 1883);
   client.setKeepAlive(KEEPALIVE);
 //  client.setCallback(callback);
+
 }
 
 void loop() {
