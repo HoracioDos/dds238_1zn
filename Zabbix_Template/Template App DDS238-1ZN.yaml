@@ -1,0 +1,229 @@
+zabbix_export:
+  version: '6.0'
+  date: '2022-07-01T13:19:21Z'
+  groups:
+    -
+      uuid: 24c226b6701a4bbba9a4a6125a25b7a0
+      name: Templates/Extras
+  templates:
+    -
+      uuid: 64e972243a8a433a9bc59e21980fa618
+      template: 'Template App DDS238-1ZN'
+      name: 'Template App DDS238-1ZN'
+      groups:
+        -
+          name: Templates/Extras
+      items:
+        -
+          uuid: d588c3e6ab6e498f91d92f2cc98f4c7f
+          name: 'dds 238 - active power'
+          type: DEPENDENT
+          key: 'dds238[ap]'
+          delay: '0'
+          value_type: FLOAT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.ap
+          master_item:
+            key: 'dds238[json]'
+          tags:
+            -
+              tag: Application
+              value: DDS238-1ZN
+        -
+          uuid: 995773a57c0045b3ab2acf697d92cbd6
+          name: 'dds238 - current exported energy'
+          type: DEPENDENT
+          key: 'dds238[cee]'
+          delay: '0'
+          value_type: FLOAT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.cee
+          master_item:
+            key: 'dds238[json]'
+          tags:
+            -
+              tag: Application
+              value: DDS238-1ZN
+        -
+          uuid: 08521e472fa8449997ea9ce41e223b20
+          name: 'dds238 - current imported energy'
+          type: DEPENDENT
+          key: 'dds238[cie]'
+          delay: '0'
+          value_type: FLOAT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.cie
+          master_item:
+            key: 'dds238[json]'
+          tags:
+            -
+              tag: Application
+              value: DDS238-1ZN
+        -
+          uuid: ef361c837bf44ebe94e8a0d98ffb9e62
+          name: 'dds238 - current total energy'
+          type: DEPENDENT
+          key: 'dds238[cte]'
+          delay: '0'
+          value_type: FLOAT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.cte
+          master_item:
+            key: 'dds238[json]'
+          tags:
+            -
+              tag: Application
+              value: DDS238-1ZN
+        -
+          uuid: cae34767743947afb8febb168635309a
+          name: 'dds 238 - current'
+          type: DEPENDENT
+          key: 'dds238[c]'
+          delay: '0'
+          value_type: FLOAT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.c
+          master_item:
+            key: 'dds238[json]'
+          tags:
+            -
+              tag: Application
+              value: DDS238-1ZN
+        -
+          uuid: f99146795a1f454698f9b0c7f0be224a
+          name: 'dds238 - frequency'
+          type: DEPENDENT
+          key: 'dds238[f]'
+          delay: '0'
+          value_type: FLOAT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.f
+          master_item:
+            key: 'dds238[json]'
+          tags:
+            -
+              tag: Application
+              value: DDS238-1ZN
+          triggers:
+            -
+              uuid: 162cc91dc705406b81d705513a785487
+              expression: 'last(/Template App DDS238-1ZN/dds238[f],#3)>=50.10'
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: 'last(/Template App DDS238-1ZN/dds238[f],#3)<50.10'
+              name: 'Frequency is too high {ITEM.VALUE}'
+              priority: WARNING
+            -
+              uuid: 1a9e2e0da0ab4f52b42c3f62c0525880
+              expression: 'last(/Template App DDS238-1ZN/dds238[f],#3)<=49.90'
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: 'last(/Template App DDS238-1ZN/dds238[f],#3)>49.90'
+              name: 'Frequency is too low {ITEM.VALUE}'
+              priority: WARNING
+        -
+          uuid: fb48f62c0ca5427ba8e7982a7cbbb7b7
+          name: 'dds238 JSON'
+          type: TRAP
+          key: 'dds238[json]'
+          delay: '0'
+          trends: '0'
+          value_type: TEXT
+          tags:
+            -
+              tag: Application
+              value: DDS238-1ZN
+          triggers:
+            -
+              uuid: 47093632ea454010af80b49bd8110007
+              expression: 'nodata(/Template App DDS238-1ZN/dds238[json],1m,"strict")=1'
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: 'nodata(/Template App DDS238-1ZN/dds238[json],5s,"strict")=0'
+              name: 'No data recieved from DDS238_1ZN'
+              priority: WARNING
+              manual_close: 'YES'
+        -
+          uuid: 8bd3412be36347cda427560c413888bc
+          name: 'dds238 - power factor'
+          type: DEPENDENT
+          key: 'dds238[pf]'
+          delay: '0'
+          value_type: FLOAT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.pf
+          master_item:
+            key: 'dds238[json]'
+          tags:
+            -
+              tag: Application
+              value: DDS238-1ZN
+        -
+          uuid: 1c0312d0ee37423588930b0a11107337
+          name: 'dds238 - reactive power'
+          type: DEPENDENT
+          key: 'dds238[rp]'
+          delay: '0'
+          value_type: FLOAT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.rp
+          master_item:
+            key: 'dds238[json]'
+          tags:
+            -
+              tag: Application
+              value: DDS238-1ZN
+        -
+          uuid: aa4a3ee8e3264ea6b98b64cec6b96696
+          name: 'dds238 - voltage'
+          type: DEPENDENT
+          key: 'dds238[v]'
+          delay: '0'
+          value_type: FLOAT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.v
+          master_item:
+            key: 'dds238[json]'
+          tags:
+            -
+              tag: Application
+              value: DDS238-1ZN
+          triggers:
+            -
+              uuid: 820619c10d3f444db079764a47612d3d
+              expression: 'last(/Template App DDS238-1ZN/dds238[v],#3)>=242.0'
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: 'last(/Template App DDS238-1ZN/dds238[v],#3)<242.0'
+              name: 'Voltage is too high {ITEM.VALUE}'
+              priority: WARNING
+            -
+              uuid: 188d1575d6ef4f648eb96e7c6e0a58d7
+              expression: 'last(/Template App DDS238-1ZN/dds238[v],#3)<=198.0'
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: 'last(/Template App DDS238-1ZN/dds238[v],#3)>198.0'
+              name: 'Voltage is too low {ITEM.VALUE}'
+              priority: WARNING
